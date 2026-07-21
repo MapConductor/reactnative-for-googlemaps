@@ -17,6 +17,9 @@ Pod::Spec.new do |s|
   # Google's own binary directly into the consuming app, so neither this package nor
   # MapConductorForGoogleMaps ever vendors or redistributes it.
   s.dependency "React-Core"
+  # Declared explicitly because this package's own Swift source imports MapConductorCore
+  # directly, not just through MapConductorReactNativeCore/MapConductorForGoogleMaps.
+  s.dependency "MapConductorCore"
   s.dependency "MapConductorReactNativeCore"
   s.dependency "MapConductorReactMarkerClustering"
   s.dependency "MapConductorForGoogleMaps"

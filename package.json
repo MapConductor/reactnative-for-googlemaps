@@ -17,12 +17,15 @@
     "ios",
     "MapConductorReactForGoogleMaps.podspec",
     "react-native.config.js",
+    "app.plugin.js",
+    "plugin/build",
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "build": "tsup src/index.ts --format cjs,esm --dts && npm run build:plugin",
+    "build:plugin": "tsc -p plugin",
     "dev": "tsup src/index.ts --format cjs,esm --watch",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist plugin/build",
     "test": "echo 'No tests yet'"
   },
   "keywords": [
@@ -39,6 +42,7 @@
     "react-native": ">=0.73.0"
   },
   "dependencies": {
+    "@expo/config-plugins": "^57.0.0",
     "@mapconductor/js-sdk-core": "0.1.0",
     "@mapconductor/js-sdk-react": "0.1.0",
     "@mapconductor/react-for-googlemaps": "0.1.0"
