@@ -35,7 +35,6 @@ import com.mapconductor.core.map.LocalMapViewController
 import com.mapconductor.core.map.MapCameraPosition
 import com.mapconductor.core.map.MapOverlayRegistry
 import com.mapconductor.core.map.MutableMapServiceRegistry
-import com.mapconductor.core.marker.MarkerAnimation
 import com.mapconductor.core.marker.MarkerIconInterface
 import com.mapconductor.core.marker.MarkerOverlay
 import com.mapconductor.core.marker.MarkerState
@@ -52,14 +51,15 @@ import com.mapconductor.googlemaps.toCameraPosition
 import com.mapconductor.react.extensions.NativeMapExtensionHostState
 import com.mapconductor.react.googlemaps.circle.circleStateFromReadableMap
 import com.mapconductor.react.googlemaps.circle.circleStatesFromReadableArray
-import com.mapconductor.react.googlemaps.marker.ReactNativeMarkerIcon
-import com.mapconductor.react.googlemaps.marker.fromReadableMap
-import com.mapconductor.react.googlemaps.marker.toMarkerIcon
 import com.mapconductor.react.googlemaps.polyline.polylineStateFromReadableMap
 import com.mapconductor.react.googlemaps.polyline.polylineStatesFromReadableArray
 import com.mapconductor.react.googlemaps.polygon.polygonStateFromReadableMap
 import com.mapconductor.react.googlemaps.polygon.polygonStatesFromReadableArray
 import com.mapconductor.react.marker.MarkerScaleBridge
+import com.mapconductor.react.marker.applyNativeMarkerUpdate
+import com.mapconductor.react.marker.decodeNativeMarkerBatch
+import com.mapconductor.react.marker.decodeNativeMarkerIcon
+import com.mapconductor.react.marker.decodeNativeMarkerState
 import com.mapconductor.react.groundimage.groundImageStateFromReadableMap
 import com.mapconductor.react.groundimage.groundImageStatesFromReadableArray
 import com.mapconductor.react.raster.rasterLayerStateFromReadableMap
@@ -329,8 +329,12 @@ class GoogleMapViewWrapper(context: Context) :
         markerCoroutine.launch {
             val previousStates = markerStates.associateBy { it.id }
             val nextStates =
-                markerStatesFromBatchReadableMap(payload, context, previousStates)
-                    .onEach(::attachMarkerCallbacks)
+                decodeNativeMarkerBatch(
+                    payload = payload,
+                    context = context,
+                    previousStates = previousStates,
+                    onMarkerEvent = ::handleMarkerEvent,
+                )
             markerStates = nextStates
             runMarkerControllerCall { mapController?.compositionMarkers(nextStates) }
             withContext(Dispatchers.Main) {
@@ -349,7 +353,14 @@ class GoogleMapViewWrapper(context: Context) :
             markerTrace("begin executing generation=$generation")
             markerCompositionGeneration = generation
             markerCompositionBuffer.clear()
-            markerCompositionIcons = markerIconsFromReadableArray(iconDictionary, context)
+            markerCompositionIcons =
+                if (iconDictionary == null) {
+                    emptyList()
+                } else {
+                    (0 until iconDictionary.size()).map { index ->
+                        decodeNativeMarkerIcon(iconDictionary.getMap(index), context)
+                    }
+                }
         }
     }
 
@@ -367,12 +378,12 @@ class GoogleMapViewWrapper(context: Context) :
                 return@launch
             }
             markerCompositionBuffer +=
-                markerStatesFromBatchReadableMap(
+                decodeNativeMarkerBatch(
                     payload = payload,
                     context = context,
                     sharedIcons = markerCompositionIcons,
+                    onMarkerEvent = ::handleMarkerEvent,
                 )
-                    .onEach(::attachMarkerCallbacks)
             markerTrace(
                 "append decoded generation=$generation sequence=$sequence count=$count " +
                     "buffer=${markerCompositionBuffer.size} elapsedMs=${SystemClock.elapsedRealtime() - startedAt}",
@@ -411,13 +422,13 @@ class GoogleMapViewWrapper(context: Context) :
     }
 
     fun updateMarker(marker: ReadableMap?) {
+        if (marker == null) return
         markerCoroutine.launch {
+            val id = marker.getStringOrNull("id")
             val previousStates = markerStates
-            val id = marker?.getStringOrNull("id") ?: return@launch
-            val existing = previousStates.firstOrNull { it.id == id }
+            val existing = id?.let { markerId -> previousStates.firstOrNull { it.id == markerId } }
             if (existing == null) {
-                val state = markerStateFromReadableMap(marker, context) ?: return@launch
-                attachMarkerCallbacks(state)
+                val state = decodeNativeMarkerState(marker, context, ::handleMarkerEvent) ?: return@launch
                 markerStates = markerStates + state
                 runMarkerControllerCall { mapController?.compositionMarkers(markerStates) }
                 withContext(Dispatchers.Main) {
@@ -427,8 +438,7 @@ class GoogleMapViewWrapper(context: Context) :
                 return@launch
             }
 
-            existing.applyReadableMap(marker, context)
-            attachMarkerCallbacks(existing)
+            applyNativeMarkerUpdate(marker, context, existing)
             runMarkerControllerCall { mapController?.updateMarker(existing) }
             withContext(Dispatchers.Main) {
                 emitMarkerScreenPositions()
@@ -563,15 +573,18 @@ class GoogleMapViewWrapper(context: Context) :
         emitInfoBubbleScreenPositions()
     }
 
-    private fun attachMarkerCallbacks(state: MarkerState) {
-        state.onClick = {
-            emit("topMarkerClick", Arguments.createMap().apply { putString("markerId", it.id) })
+    private fun handleMarkerEvent(
+        eventName: String,
+        state: MarkerState,
+    ) {
+        when (eventName) {
+            "markerClick" -> emit("topMarkerClick", Arguments.createMap().apply { putString("markerId", state.id) })
+            "markerDragStart" -> emitMarkerDrag("topMarkerDragStart", state)
+            "markerDrag" -> emitMarkerDrag("topMarkerDrag", state)
+            "markerDragEnd" -> emitMarkerDrag("topMarkerDragEnd", state)
+            "markerAnimateStart" -> emitMarkerAnimate("topMarkerAnimateStart", state)
+            "markerAnimateEnd" -> emitMarkerAnimate("topMarkerAnimateEnd", state)
         }
-        state.onDragStart = { emitMarkerDrag("topMarkerDragStart", it) }
-        state.onDrag = { emitMarkerDrag("topMarkerDrag", it) }
-        state.onDragEnd = { emitMarkerDrag("topMarkerDragEnd", it) }
-        state.onAnimateStart = { emitMarkerAnimate("topMarkerAnimateStart", it) }
-        state.onAnimateEnd = { emitMarkerAnimate("topMarkerAnimateEnd", it) }
     }
 
     private fun emitMarkerDrag(
@@ -901,138 +914,8 @@ private data class InfoBubblePosition(
     val point: GeoPoint,
 )
 
-/**
- * Decodes the compressed compositionMarkers() batch payload: structure-of-arrays referring to
- * the composition-level icon dictionary registered by beginMarkerComposition().
- * This avoids ~7 hasKey/isNull/getX JNI calls per marker field that per-marker maps needed, and
- * avoids re-decoding an identical icon definition once per marker.
- */
-private fun markerStatesFromBatchReadableMap(
-    payload: ReadableMap?,
-    context: Context,
-    previousStates: Map<String, MarkerState> = emptyMap(),
-    sharedIcons: List<MarkerIconInterface?>? = null,
-): List<MarkerState> {
-    if (payload == null) return emptyList()
-    val ids = payload.getArray("ids") ?: return emptyList()
-    val positions = payload.getArray("positions") ?: return emptyList()
-    val clickableArr = payload.getArray("clickable")
-    val draggableArr = payload.getArray("draggable")
-    val zIndexArr = payload.getArray("zIndex")
-    val iconIndexArr = payload.getArray("iconIndex")
-    val animationArr = payload.getArray("animation")
-    val icons = sharedIcons ?: markerIconsFromReadableArray(payload.getArray("icons"), context)
-
-    return buildList {
-        for (index in 0 until ids.size()) {
-            val id = ids.getString(index) ?: continue
-            val position =
-                GeoPoint(
-                    latitude = positions.getDouble(index * 3),
-                    longitude = positions.getDouble(index * 3 + 1),
-                    altitude = positions.getDouble(index * 3 + 2),
-                )
-            val clickable = clickableArr?.getBoolean(index) ?: true
-            val draggable = draggableArr?.getBoolean(index) ?: false
-            val zIndex = zIndexArr?.getDouble(index)?.toInt()
-            val iconIdx = iconIndexArr?.getInt(index) ?: -1
-            val icon = icons.getOrNull(iconIdx)
-            val animation =
-                if (animationArr != null && !animationArr.isNull(index)) {
-                    runCatching { MarkerAnimation.valueOf(animationArr.getString(index) ?: "") }.getOrNull()
-                } else {
-                    null
-                }
-
-            val existing = previousStates[id]
-            if (existing != null) {
-                existing.position = position
-                existing.clickable = clickable
-                existing.draggable = draggable
-                existing.zIndex = zIndex
-                existing.icon = icon
-                animation?.let(existing::animate)
-                add(existing)
-            } else {
-                add(
-                    MarkerState(
-                        id = id,
-                        position = position,
-                        clickable = clickable,
-                        draggable = draggable,
-                        zIndex = zIndex,
-                        icon = icon,
-                        animation = animation,
-                    ),
-                )
-            }
-        }
-    }
-}
-
-private fun markerIconsFromReadableArray(
-    iconDictionary: ReadableArray?,
-    context: Context,
-): List<MarkerIconInterface?> =
-    if (iconDictionary == null) {
-        emptyList()
-    } else {
-        (0 until iconDictionary.size()).map { index ->
-            ReactNativeMarkerIcon.fromReadableMap(iconDictionary.getMap(index))?.toMarkerIcon(context)
-        }
-    }
-
-private fun markerStateFromReadableMap(
-    map: ReadableMap?,
-    context: Context,
-): MarkerState? {
-    if (map == null) return null
-    val id = if (map.hasKey("id") && !map.isNull("id")) map.getString("id") else null
-    val position = GeoPoint.fromReadableMap(map.getMap("position"))
-    if (id == null || position == null) return null
-    return MarkerState(
-        id = id,
-        position = position,
-        clickable = if (map.hasKey("clickable") && !map.isNull("clickable")) map.getBoolean("clickable") else true,
-        draggable = if (map.hasKey("draggable") && !map.isNull("draggable")) map.getBoolean("draggable") else false,
-        zIndex = map.getDoubleOrNull("zIndex")?.toInt(),
-        icon = ReactNativeMarkerIcon.fromReadableMap(if (map.hasKey("icon") && !map.isNull("icon")) map.getMap("icon") else null)
-            ?.toMarkerIcon(context),
-        animation = if (map.hasKey("animation") && !map.isNull("animation")) {
-            runCatching { MarkerAnimation.valueOf(map.getString("animation") ?: "") }.getOrNull()
-        } else {
-            null
-        },
-    )
-}
-
-private fun MarkerState.applyReadableMap(
-    map: ReadableMap,
-    context: Context,
-) {
-    GeoPoint.fromReadableMap(map.getMapOrNull("position"))?.let { position = it }
-    clickable = if (map.hasKey("clickable") && !map.isNull("clickable")) map.getBoolean("clickable") else true
-    draggable = if (map.hasKey("draggable") && !map.isNull("draggable")) map.getBoolean("draggable") else false
-    zIndex = map.getDoubleOrNull("zIndex")?.toInt()
-    icon = ReactNativeMarkerIcon.fromReadableMap(map.getMapOrNull("icon"))?.toMarkerIcon(context)
-
-    markerAnimationFromReadableMap(map)?.let { animation ->
-        animate(animation)
-    }
-}
-
-private fun markerAnimationFromReadableMap(map: ReadableMap): MarkerAnimation? =
-    if (map.hasKey("animation") && !map.isNull("animation")) {
-        runCatching { MarkerAnimation.valueOf(map.getString("animation") ?: "") }.getOrNull()
-    } else {
-        null
-    }
-
 private fun ReadableMap.getStringOrNull(key: String): String? =
     if (hasKey(key) && !isNull(key)) getString(key) else null
-
-private fun ReadableMap.getMapOrNull(key: String): ReadableMap? =
-    if (hasKey(key) && !isNull(key)) getMap(key) else null
 
 private fun ReadableMap.getBooleanOrNull(key: String): Boolean? =
     if (hasKey(key) && !isNull(key)) getBoolean(key) else null
