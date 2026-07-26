@@ -44,9 +44,9 @@
   },
   "dependencies": {
     "@expo/config-plugins": "^57.0.0",
-    "@mapconductor/js-sdk-core": "0.1.1",
-    "@mapconductor/js-sdk-react": "0.1.1",
-    "@mapconductor/react-for-googlemaps": "0.1.1"
+    "@mapconductor/js-sdk-core": "^0.1.1",
+    "@mapconductor/js-sdk-react": "^0.1.1",
+    "@mapconductor/react-for-googlemaps": "^0.1.1"
   },
   "devDependencies": {
     "react": "^19.2.7",
