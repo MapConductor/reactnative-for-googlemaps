@@ -42,11 +42,10 @@ secrets.properties
 
 dist/*
 *.js
-!examples/reactnative-basic/index.js
-!examples/reactnative-basic/metro.config.js
-!examples/reactnative-basic/react-native.config.js
-!packages/react-native-google-maps/react-native.config.js
-!packages/js-sdk-core/src/tileserver/tile-sw.js
+# RN autolinking / Expo config-plugin entry points. These are hand-written source,
+# not build output, and package.json's "files" ships them - they must stay tracked.
+!react-native.config.js
+!app.plugin.js
 *.mts
 *.map
 *.mjs

@@ -123,8 +123,13 @@ export class GoogleMapViewController
     return true;
   }
 
-  async fitBounds(_bounds: GeoRectBounds, _padding: number): Promise<boolean> {
-    return false;
+  async fitBounds(bounds: GeoRectBounds, padding: number): Promise<boolean> {
+    if (bounds.isEmpty) return false;
+    this.dispatchCommand('fitBounds', [
+      { southWest: bounds.southWest, northEast: bounds.northEast },
+      padding,
+    ]);
+    return true;
   }
 
   getCameraPosition(): MapCameraPosition | null {

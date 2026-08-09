@@ -22,15 +22,15 @@ import {
   useCameraRestriction,
   useMarkerRenderingSupport,
 } from '@mapconductor/js-sdk-react/internal';
-import type { GoogleMapViewState } from '@mapconductor/react-for-googlemaps';
+import type { GoogleMapViewStateInterface } from '@mapconductor/react-for-googlemaps';
 import { GoogleMapViewController } from './GoogleMapViewController.native';
 import NativeGoogleMapView, {
   toNativeCameraPosition,
   toNativeMarkerTilingOptions,
 } from './GoogleMapViewNativeComponent';
 
-export interface GoogleMapViewProps extends Omit<MapViewBaseProps<GoogleMapViewState>, 'state'> {
-  state?: GoogleMapViewState;
+export interface GoogleMapViewProps extends Omit<MapViewBaseProps<GoogleMapViewStateInterface>, 'state'> {
+  state?: GoogleMapViewStateInterface;
   mapId?: string;
   markerTilingOptions?: MarkerTilingOptions;
   className?: string;
@@ -148,10 +148,9 @@ export function GoogleMapView({
     mapViewStateInternal(state).setController(controller);
 
     controller.setMapInitializedListener(() => {
-        setIsLoaded(true);
-        setIsLoaded(true);
-        onMapLoadedRef.current?.(state);
-      });
+      setIsLoaded(true);
+      onMapLoadedRef.current?.(state);
+    });
     controller.setMapClickListener((point) => onMapClickRef.current?.(point));
     controller.setMapLongClickListener((point) => onMapLongClickRef.current?.(point));
     controller.setCameraMoveStartListener((camera) => {

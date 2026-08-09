@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
   s.author = package["author"]
   s.homepage = "https://github.com/mapconductor/react-sdk"
   s.source = { :path => __dir__ }
-  s.platforms = { :ios => "16.0" }
+  s.platform = :ios, "16.1"
   s.source_files = "ios/*.{h,m,mm,swift}"
   # MapConductorForGoogleMaps is a source pod (see ios-sdk/ios-for-googlemaps's podspec) that
   # itself depends on the real, officially-published `GoogleMaps` pod - CocoaPods installs
