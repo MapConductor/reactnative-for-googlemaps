@@ -20,6 +20,7 @@ import {
 import {
   useCollectAndRenderOverlays,
   useCameraRestriction,
+  useMapUISettings,
   useMarkerRenderingSupport,
 } from '@mapconductor/js-sdk-react/internal';
 import type { GoogleMapViewStateInterface } from '@mapconductor/react-for-googlemaps';
@@ -79,6 +80,8 @@ export function GoogleMapView({
   // ネイティブ側に範囲制限 API を渡していないため、BaseMapViewController の
   // クランプ方式で効く（android-sdk の HERE/ArcGIS/TomTom と同じ振り分け）。
   useCameraRestriction(controller, { cameraRestriction });
+  // state.uiSettings をネイティブのコントローラへ流す（web の MapViewBase 相当）。
+  useMapUISettings(state, controller);
 
   useEffect(() => {
     const iconScaleCallback = markerTilingOptions?.iconScaleCallback;

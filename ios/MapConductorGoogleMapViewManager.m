@@ -12,6 +12,7 @@
 - (void)moveCamera:(NSDictionary *)payload duration:(double)duration;
 - (void)fitBounds:(NSDictionary *)bounds padding:(NSInteger)padding;
 - (void)clearOverlays;
+- (void)applyUISettings:(NSDictionary *)payload;
 - (void)beginMarkerComposition:(NSInteger)generation icons:(NSArray *)icons;
 - (void)appendMarkerComposition:(NSInteger)generation sequence:(NSInteger)sequence payload:(NSDictionary *)payload;
 - (void)commitMarkerComposition:(NSInteger)generation;
@@ -206,6 +207,13 @@ RCT_EXPORT_METHOD(animateCamera:(nonnull NSNumber *)reactTag position:(nonnull N
 RCT_EXPORT_METHOD(fitBounds:(nonnull NSNumber *)reactTag bounds:(nonnull NSDictionary *)bounds padding:(NSInteger)padding)
 {
   [self withView:reactTag block:^(MCGoogleMapsReactNativeView *view) { [view fitBounds:bounds padding:padding]; }];
+}
+
+RCT_EXPORT_METHOD(applyUISettings:(nonnull NSNumber *)reactTag payload:(nonnull NSDictionary *)payload)
+{
+  [self withView:reactTag block:^(MCGoogleMapsReactNativeView *view) {
+    if ([view respondsToSelector:@selector(applyUISettings:)]) [view applyUISettings:payload];
+  }];
 }
 
 RCT_EXPORT_METHOD(beginMarkerComposition:(nonnull NSNumber *)reactTag generation:(NSInteger)generation icons:(nonnull NSArray *)icons)
