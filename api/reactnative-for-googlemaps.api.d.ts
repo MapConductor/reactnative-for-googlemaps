@@ -1,7 +1,7 @@
 export { GoogleMapDesign, GoogleMapDesignType, GoogleMapViewState, GoogleMapViewStateInterface, useGoogleMapViewState } from '@mapconductor/react-for-googlemaps/state';
 import React from 'react';
 import { ViewProps, HostComponent, NativeMethods } from 'react-native';
-import { GeoPoint, MapCameraPosition, MarkerTilingOptions, MapViewHolder, Offset, BaseMapViewController, MapViewControllerInterface, CircleCapable, GroundImageCapable, MarkerCapable, PolygonCapable, PolylineCapable, RasterLayerCapable, NativeMapExtensionCapable, GeoRectBounds, MapUISettings, MarkerState, PolylineState, CircleState, OnCircleEventHandler, GroundImageState, OnGroundImageEventHandler, PolygonState, OnPolygonEventHandler, OnPolylineEventHandler, RasterLayerState, NativeMapExtensionDescriptor, NativeMapExtensionEventHandler, NativeMapExtensionEvent as NativeMapExtensionEvent$1, OnMarkerEventHandler, MarkerAnimationOverlayHost } from '@mapconductor/js-sdk-core';
+import { GeoPoint, MapCameraPosition, MarkerTilingOptions, MapViewHolderBase, Offset, BaseMapViewController, MapViewControllerInterface, CircleCapable, GroundImageCapable, MarkerCapable, PolygonCapable, PolylineCapable, RasterLayerCapable, NativeMapExtensionCapable, GeoRectBounds, MapUISettings, MarkerState, PolylineState, CircleState, OnCircleEventHandler, GroundImageState, OnGroundImageEventHandler, PolygonState, OnPolygonEventHandler, OnPolylineEventHandler, RasterLayerState, NativeMapExtensionDescriptor, NativeMapExtensionEventHandler, NativeMapExtensionEvent as NativeMapExtensionEvent$1, OnMarkerEventHandler, MarkerAnimationOverlayHost } from '@mapconductor/js-sdk-core';
 import { NativeMapExtensionEvent, MapViewBaseProps } from '@mapconductor/js-sdk-react/native';
 import { GoogleMapViewStateInterface } from '@mapconductor/react-for-googlemaps';
 
@@ -129,13 +129,12 @@ type GoogleMapViewRef = React.ComponentRef<HostComponent<NativeGoogleMapViewProp
 type GoogleMapMapView = GoogleMapViewRef | null;
 type GoogleMapMap = null;
 
-declare class GoogleMapMapViewHolder implements MapViewHolder<GoogleMapViewRef | null, null> {
+declare class GoogleMapMapViewHolder extends MapViewHolderBase<GoogleMapViewRef | null, null> {
     private readonly nativeRef;
     readonly map: null;
     constructor(nativeRef: React.RefObject<GoogleMapViewRef | null>);
     get mapView(): GoogleMapViewRef | null;
     toScreenOffset(_position: GeoPoint): null;
-    fromScreenOffset(_offset: Offset): Promise<GeoPoint | null>;
     fromScreenOffsetSync(_offset: Offset): GeoPoint | null;
 }
 
