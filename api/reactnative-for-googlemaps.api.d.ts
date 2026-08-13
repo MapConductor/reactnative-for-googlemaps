@@ -1,9 +1,9 @@
-import { GoogleMapViewStateInterface } from '@mapconductor/react-for-googlemaps';
-export { GoogleMapDesign, GoogleMapDesignType, GoogleMapViewState, GoogleMapViewStateInterface, useGoogleMapViewState } from '@mapconductor/react-for-googlemaps';
+export { GoogleMapDesign, GoogleMapDesignType, GoogleMapViewState, GoogleMapViewStateInterface, useGoogleMapViewState } from '@mapconductor/react-for-googlemaps/state';
 import React from 'react';
 import { ViewProps, HostComponent, NativeMethods } from 'react-native';
 import { GeoPoint, MapCameraPosition, MarkerTilingOptions, MapViewHolder, Offset, BaseMapViewController, MapViewControllerInterface, CircleCapable, GroundImageCapable, MarkerCapable, PolygonCapable, PolylineCapable, RasterLayerCapable, NativeMapExtensionCapable, GeoRectBounds, MarkerState, PolylineState, CircleState, OnCircleEventHandler, GroundImageState, OnGroundImageEventHandler, PolygonState, OnPolygonEventHandler, OnPolylineEventHandler, RasterLayerState, NativeMapExtensionDescriptor, NativeMapExtensionEventHandler, NativeMapExtensionEvent as NativeMapExtensionEvent$1, OnMarkerEventHandler, MarkerAnimationOverlayHost } from '@mapconductor/js-sdk-core';
 import { NativeMapExtensionEvent, MapViewBaseProps } from '@mapconductor/js-sdk-react/native';
+import { GoogleMapViewStateInterface } from '@mapconductor/react-for-googlemaps';
 
 interface NativeGoogleMapViewEvent<T> {
     nativeEvent: T;
