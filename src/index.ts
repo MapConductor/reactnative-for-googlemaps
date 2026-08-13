@@ -12,4 +12,4 @@ export * from './GoogleMapMapViewHolder.native';
 export * from './GoogleMapViewController.native';
 export * from './GoogleMapView.native';
 export * from './GoogleMapViewNativeComponent';
-
+export * from './GoogleMapViewProps.native';
