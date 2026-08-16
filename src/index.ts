@@ -8,8 +8,10 @@ export {
   type GoogleMapViewStateInterface,
 } from '@mapconductor/react-for-googlemaps/state';
 export * from './GoogleMapTypeAlias.native';
+export * from './GoogleMapViewControllerInterface.native';
 export * from './GoogleMapMapViewHolder.native';
 export * from './GoogleMapViewController.native';
 export * from './GoogleMapView.native';
 export * from './GoogleMapViewNativeComponent';
 export * from './GoogleMapViewProps.native';
+export * from './marker/GoogleMapMarkerController.native';

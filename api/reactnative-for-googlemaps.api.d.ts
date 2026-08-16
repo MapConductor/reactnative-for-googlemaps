@@ -4,8 +4,8 @@ import * as React from 'react';
 import React__default from 'react';
 import { HostComponent, NativeMethods } from 'react-native';
 import { NativeMapViewProps, NativeMapViewEvent, ReactNativeMapViewHolder, ReactNativeBridgeMapViewController } from '@mapconductor/js-sdk-react/internal';
-export { NativeMarkerTilingOptions, toNativeCameraPosition, toNativeMarkerTilingOptions } from '@mapconductor/js-sdk-react/internal';
-import { MarkerTilingOptions } from '@mapconductor/js-sdk-core';
+export { NativeMarkerStatePayload as NativeGoogleMapMarkerState, NativeMarkerTilingOptions, markerStateToNative, toNativeCameraPosition, toNativeMarkerTilingOptions } from '@mapconductor/js-sdk-react/internal';
+import { MapViewControllerInterface, MarkerTilingOptions } from '@mapconductor/js-sdk-core';
 import { MapViewBaseProps } from '@mapconductor/js-sdk-react/native';
 
 type NativeGoogleMapViewEvent<T> = NativeMapViewEvent<T>;
@@ -17,6 +17,8 @@ interface NativeGoogleMapViewProps extends NativeMapViewProps {
 type GoogleMapViewRef = React__default.ComponentRef<HostComponent<NativeGoogleMapViewProps>> & NativeMethods;
 type GoogleMapMapView = GoogleMapViewRef | null;
 type GoogleMapMap = null;
+
+type GoogleMapViewControllerInterface = MapViewControllerInterface;
 
 /**
  * RN のホルダーは全プロバイダで同一（投影はネイティブ側が行う）なので
@@ -48,4 +50,4 @@ interface GoogleMapViewProps extends MapViewBaseProps<GoogleMapViewStateInterfac
  */
 declare function GoogleMapView(props: GoogleMapViewProps): React.JSX.Element;
 
-export { type GoogleMapMap, type GoogleMapMapView, GoogleMapMapViewHolder, GoogleMapView, GoogleMapViewController, type GoogleMapViewProps, type GoogleMapViewRef, type NativeGoogleMapViewEvent, type NativeGoogleMapViewProps };
+export { type GoogleMapMap, type GoogleMapMapView, GoogleMapMapViewHolder, GoogleMapView, GoogleMapViewController, type GoogleMapViewControllerInterface, type GoogleMapViewProps, type GoogleMapViewRef, type NativeGoogleMapViewEvent, type NativeGoogleMapViewProps };
