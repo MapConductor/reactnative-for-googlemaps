@@ -1,6 +1,6 @@
 {
   "name": "@mapconductor/reactnative-for-googlemaps",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "description": "React Native provider for MapConductor Google Maps - the RN-only native bridge; see @mapconductor/react-for-googlemaps for the web/React DOM provider.",
   "main": "./dist/index.js",
@@ -45,8 +45,8 @@
   "dependencies": {
     "@expo/config-plugins": "^57.0.9",
     "@mapconductor/js-sdk-core": "^0.2.0",
-    "@mapconductor/js-sdk-react": "^0.2.0",
-    "@mapconductor/react-for-googlemaps": "^0.2.0"
+    "@mapconductor/js-sdk-react": "^0.2.1",
+    "@mapconductor/react-for-googlemaps": "^0.2.1"
   },
   "devDependencies": {
     "react": "^19.2.8",
