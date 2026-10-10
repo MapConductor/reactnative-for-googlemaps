@@ -53,6 +53,8 @@ final class GoogleMapReactNativeHost: MCReactNativeMapHost {
     }()
 
     var mcServiceRegistry: MutableMapServiceRegistry { state.serviceRegistry }
+    /// 地図ホストは `MapViewCoordinatorBase` なので、そのまま差し出せる。
+    var mcStyleHost: MapViewStyleHost? { mapHost.styleHost }
     var mcCameraZoom: Double { state.cameraPosition.zoom }
 
     /// キー未設定のまま `GMSMapView` を作ると落ちるので、揃うまで地図を作らせない。
