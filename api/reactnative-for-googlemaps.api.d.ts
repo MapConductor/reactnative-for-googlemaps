@@ -50,4 +50,5 @@ interface GoogleMapViewProps extends MapViewBaseProps<GoogleMapViewStateInterfac
  */
 declare function GoogleMapView(props: GoogleMapViewProps): React.JSX.Element;
 
-export { type GoogleMapMap, type GoogleMapMapView, GoogleMapMapViewHolder, GoogleMapView, GoogleMapViewController, type GoogleMapViewControllerInterface, type GoogleMapViewProps, type GoogleMapViewRef, type NativeGoogleMapViewEvent, type NativeGoogleMapViewProps };
+export { GoogleMapMapViewHolder, GoogleMapView, GoogleMapViewController };
+export type { GoogleMapMap, GoogleMapMapView, GoogleMapViewControllerInterface, GoogleMapViewProps, GoogleMapViewRef, NativeGoogleMapViewEvent, NativeGoogleMapViewProps };
