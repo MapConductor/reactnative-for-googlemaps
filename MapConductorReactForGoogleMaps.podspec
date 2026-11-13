@@ -19,8 +19,8 @@ Pod::Spec.new do |s|
   s.dependency "React-Core"
   # Declared explicitly because this package's own Swift source imports MapConductorCore
   # directly, not just through MapConductorReactNativeCore/MapConductorForGoogleMaps.
-  s.dependency "MapConductorCore", "~> 1.3.0"
+  s.dependency "MapConductorCore", "~> 1.4"
   s.dependency "MapConductorReactNativeCore"
   s.dependency "MapConductorReactMarkerClustering"
-  s.dependency "MapConductorForGoogleMaps", "~> 1.3.0"
+  s.dependency "MapConductorForGoogleMaps", "~> 1.4"
 end
